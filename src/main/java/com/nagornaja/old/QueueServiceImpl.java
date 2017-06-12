@@ -1,4 +1,6 @@
-package com.nagornaja;
+package com.nagornaja.old;
+
+import com.nagornaja.api.Item;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -8,11 +10,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Класс, отвечающий за координацию работы очереди между Producer-ом(Производитель) и Consumer-ми(Потребителями)
+ * Класс, отвечающий за координацию работы очереди между ProducerImpl-ом(Производитель) и ConsumerImpl-ми(Потребителями)
  * Created by Elene on 31.03.17.
  */
-public class QueueService {
-    public static volatile QueueService instance;
+public class QueueServiceImpl {
+    public static volatile QueueServiceImpl instance;
 
     private final int amountRestriction = 10;
 
@@ -42,7 +44,7 @@ public class QueueService {
     private AtomicBoolean finished;
 
 
-    private QueueService(){
+    private QueueServiceImpl(){
         groupsCount = 0;
         mapOfSubqueues = new ConcurrentHashMap<>();
         mapOfGroupsLocks = new ConcurrentHashMap<>();
@@ -51,11 +53,11 @@ public class QueueService {
         finished = new AtomicBoolean(false);
     }
 
-    public static QueueService getInstance(){
+    public static QueueServiceImpl getInstance(){
         if(instance == null){
-            synchronized (QueueService.class){
+            synchronized (QueueServiceImpl.class){
                 if(instance == null){
-                    instance = new QueueService();
+                    instance = new QueueServiceImpl();
                 }
             }
         }
@@ -63,7 +65,7 @@ public class QueueService {
     }
 
     /**
-     * Поток Consumer обращается за новой "порцией" элементов
+     * Поток ConsumerImpl обращается за новой "порцией" элементов
      * @return
      */
     public List<Item> getNextSubqueue(){
@@ -156,7 +158,8 @@ public class QueueService {
         return mapOfSubqueues.containsKey(groupId);
     }
 
-    public String printSubqueueByGroupId(PriorityBlockingQueue<Item> queue){
+    public String printSubqueueByGroupId(PriorityBlockingQueue<Item
+            > queue){
         StringBuilder res = new StringBuilder();
         for (Item item :queue){
             res.append("[ ").append(item.getItemId()).append(" ] ");
