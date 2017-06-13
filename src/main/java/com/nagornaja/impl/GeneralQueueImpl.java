@@ -2,8 +2,6 @@ package com.nagornaja.impl;
 
 import com.nagornaja.api.GeneralQueue;
 import com.nagornaja.api.Item;
-import com.nagornaja.api.ThreadRegistrator;
-import com.nagornaja.old.QueueServiceImpl;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Created by Elene on 04.06.17.
@@ -29,7 +26,7 @@ public class GeneralQueueImpl implements GeneralQueue<Item> {
 
     static GeneralQueueImpl getInstance() {
         if (instance == null) {
-            synchronized (QueueServiceImpl.class) {
+            synchronized (GeneralQueueImpl.class) {
                 if (instance == null) {
                     instance = new GeneralQueueImpl();
                 }
@@ -38,57 +35,31 @@ public class GeneralQueueImpl implements GeneralQueue<Item> {
         return instance;
     }
 
-    private ThreadRegistrator getRegistrator() {
-        return ThreadRegistratorImpl.getInstance();
-    }
-
-    private Set<Long> getFreeGroupIds() {
-        return mapOfSubqueues.keySet().stream()
-                .filter(k -> !mapOfSubqueues.get(k).isProcessed())
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Long getFreeGroupId() {
-        Set<Long> freeGroupIds = getFreeGroupIds();
-        final int[] max = {0};
-        final Long[] res = {0L};
-        mapOfSubqueues.forEach((groupId, subQueue) -> {
-            if (subQueue.size() > max[0] && freeGroupIds.contains(groupId)) {
-                max[0] = subQueue.size();
-                res[0] = groupId;
-            }
-        });
-        return res[0];
-    }
 
     @Override
     public Set<Long> getAllGroupIds() {
+        mapOfSubqueues.values().forEach((q) -> {
+            if(q.isEmpty()){
+                removeProcessedGroup(q.getGroupId());
+            }
+        });
         return new HashSet<>(mapOfSubqueues.keySet());
     }
 
-    private boolean isGroupExists(Long groupId) {
-        return mapOfSubqueues.containsKey(groupId);
-    }
 
     @Override
-    public List<Item> getNextItems() {
-
-        Long groupId = getFreeGroupId();
-
-        return getNextItemsByGroupId(groupId);
-    }
-
-    @Override
-    public List<Item> getNextItemsByGroupId(Long groupId) {
+    public List<Item> getNextItemByGroupId(Long groupId) {
         List<Item> res = new ArrayList<>();
 
         if (isGroupExists(groupId)) {
-            res.addAll(mapOfSubqueues.get(groupId).getNextItemsForProcessing());
+            res.add(mapOfSubqueues.get(groupId).getNextItemForProcessing());
         }
         return res;
     }
 
+    private boolean isGroupExists(Long groupId) {
+        return groupId != null && mapOfSubqueues.containsKey(groupId);
+    }
 
     @Override
     public void putItem(Item item) {
@@ -113,23 +84,22 @@ public class GeneralQueueImpl implements GeneralQueue<Item> {
     public boolean hasItems() {
         boolean res = false;
         for (SubQueueImpl subQueue : mapOfSubqueues.values()) {
-            res = res || subQueue.hasFreeItems();
+            res = res || !subQueue.isEmpty();
         }
         return res;
     }
 
     @Override
-    public void removeProcessedItemsByGroupId(Long groupId) {
-        mapOfSubqueues.get(groupId).removeProcessedItems();
+    public void removeProcessedGroup(Long groupId) {
+        mapOfSubqueues.remove(groupId);
     }
 
 
-
     @Override
-    public SubQueueImpl createNotExistingSubqueue(Long groupId) {
+    public void createNotExistingSubqueue(Long groupId) {
         mapOfSubqueues.put(groupId, new SubQueueImpl());
         System.out.println(LocalTime.now() + ": CREATE GROUP: [ GROUP: " + groupId + " ]");
-        return mapOfSubqueues.get(groupId);
+        mapOfSubqueues.get(groupId);
     }
 
 
@@ -147,7 +117,12 @@ public class GeneralQueueImpl implements GeneralQueue<Item> {
     }
 
     @Override
-    public void setIsAddingFinished(boolean isAddingFinished) {
-        this.isAddingFinished.set(isAddingFinished);
+    public boolean isFinished() {
+        return getIsAddingFinished() && !hasItems();
+    }
+
+    @Override
+    public void setIsAddingFinished() {
+        this.isAddingFinished.set(true);
     }
 }

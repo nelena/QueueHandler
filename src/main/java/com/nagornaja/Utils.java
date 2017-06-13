@@ -7,13 +7,13 @@ import java.util.Random;
  */
 public class Utils {
 
-    public static long generateRandomId(){
+    static long generateRandomId(){
         int minIdBound = 1000000;
         int maxIdBound = 9999999;
         return (long) generateRandom(minIdBound, maxIdBound);
     }
 
-    public static long generateRandomId(int minIdBound, int maxIdBound){
+    static long generateRandomId(int minIdBound, int maxIdBound){
         return (long) generateRandom(minIdBound, maxIdBound);
     }
 

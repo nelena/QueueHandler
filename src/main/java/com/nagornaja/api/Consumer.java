@@ -6,11 +6,11 @@ import java.util.List;
  * Created by Elene on 31.05.17.
  */
 public interface Consumer<I>{
-    List<I> getNextItems();
 
-    List<I> getNextItemsByGroupId(Long groupId);
+    List<I> getNextItemByGroupId(Long groupId);
 
-    Long findFreeGroup();
+    List<Long> findFreeGroups();
 
-    void removeProcessedItemsByGroupId(Long groupId);
+    boolean hasItems();
+
 }

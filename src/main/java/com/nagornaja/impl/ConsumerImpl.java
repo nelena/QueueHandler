@@ -4,11 +4,10 @@ import com.nagornaja.api.Consumer;
 import com.nagornaja.api.GeneralQueue;
 import com.nagornaja.api.Item;
 import com.nagornaja.api.ThreadRegistrator;
-import sun.jvm.hotspot.code.SingletonBlob;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Elene on 30.03.17.
@@ -32,24 +31,29 @@ public class ConsumerImpl implements Consumer<Item> {
         return GeneralQueueImpl.getInstance();
     }
 
+    private ThreadRegistrator getRegistrator(){
+        return ThreadRegistratorImpl.getInstance();
+    }
+
+
     @Override
-    public List<Item> getNextItems() {
-        return getQueue().getNextItems();
+    public List<Item> getNextItemByGroupId(Long groupId) {
+        return getQueue().getNextItemByGroupId(groupId);
     }
 
     @Override
-    public List<Item> getNextItemsByGroupId(Long groupId) {
-        return getQueue().getNextItemsByGroupId(groupId);
+    public List<Long> findFreeGroups() {
+        Set<Long> allGroupIds = getQueue().getAllGroupIds();
+        Set<Long> processingGroupIds = getRegistrator().getProcessingGroupIds();
+        allGroupIds.removeAll(processingGroupIds);
+        return new ArrayList<>(allGroupIds);
     }
 
-    @Override
-    public Long findFreeGroup() {
-        return getQueue().getFreeGroupId();
-    }
 
     @Override
-    public void removeProcessedItemsByGroupId(Long groupId){
-        getQueue().removeProcessedItemsByGroupId(groupId);
+    public boolean hasItems() {
+        return !getQueue().isFinished();
     }
+
 
 }

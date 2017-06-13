@@ -1,7 +1,6 @@
 package com.nagornaja;
 
 
-import com.nagornaja.impl.AppImpl;
 import org.junit.Test;
 
 /**
@@ -9,14 +8,18 @@ import org.junit.Test;
  */
 public class AppImplTest
 {
-   @Test
-   public void appTest(){
-       String[] args = new String[] {"3", "2", "20"};
-       AppImpl.main(args);
-   }
 
    @Test
-    public void generateItemsTest(){
-
+    public void AppTest1(){
+        AppImpl app = new AppImpl();
+        app.setGroupsCount(7);
+        app.init();
    }
+
+    @Test
+    public void AppTest2(){
+        AppImpl app = new AppImpl();
+        app.setGroupsCount(15);
+        app.init();
+    }
 }

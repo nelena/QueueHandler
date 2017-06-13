@@ -29,9 +29,9 @@ public class ItemsCompareTest {
         for(int i = 0; i < 1000; i++){
             long groupId_1 = Utils.generateRandomId(100, 200);
             long groupId_2 = Utils.generateRandomId(300, 400);
-            Item item1 = new ItemImpl(Utils.generateRandomId(100, 200), groupId_1);
-            Item item2 = new ItemImpl(Utils.generateRandomId(100, 200), groupId_2);
-            Item item3 = new ItemImpl(Utils.generateRandomId(100, 200), groupId_1);
+            Item item1 = new ItemImpl(1, groupId_1);
+            Item item2 = new ItemImpl(2, groupId_2);
+            Item item3 = new ItemImpl(1, groupId_1);
             Assert.assertEquals(item1.compareTo(item2), -1);
             Assert.assertEquals(item2.compareTo(item1),  1);
             Assert.assertEquals(item1.compareTo(item3),  0);

@@ -5,9 +5,5 @@ package com.nagornaja.api;
  */
 public interface SubQueue<I> {
 
-    void lock();
-
-    void unlock();
-
     Long getGroupId();
 }

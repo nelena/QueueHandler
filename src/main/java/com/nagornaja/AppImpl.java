@@ -1,22 +1,25 @@
-package com.nagornaja.impl;
+package com.nagornaja;
 
-import com.nagornaja.Utils;
 import com.nagornaja.api.Item;
 import com.nagornaja.api.Producer;
+import com.nagornaja.impl.ProducerImpl;
+import com.nagornaja.impl.ThreadItemsProcessorImpl;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppImpl
+class AppImpl
 {
 
-    public static void main(String[] args) {
+    private Long groupsCount;
 
+
+    void init(){
         System.out.println(LocalTime.now() + ": Start");
 
 
-        Producer<Item> producer = new ProducerImpl();
+        Producer<Item> producer = new ProducerImpl(getGroupsCount(), getGroupsCount() * 5);
         int threadsCount = Utils.generateRandom(1, producer.getGroupsCount() - 1);
         Thread producerRunner = new Thread(producer);
 
@@ -27,7 +30,7 @@ public class AppImpl
             threadProcessors.add(new ThreadItemsProcessorImpl());
         }
 
-        threadProcessors.forEach(ThreadItemsProcessorImpl::start);
+        threadProcessors.parallelStream().forEach(ThreadItemsProcessorImpl::start);
 
         for(ThreadItemsProcessorImpl processor : threadProcessors){
             try{
@@ -44,7 +47,17 @@ public class AppImpl
         }
 
         System.out.println(LocalTime.now() + ": Finish");
-
     }
 
+    private long getGroupsCount() {
+        if(groupsCount == null){
+            return 5L;
+        }else {
+            return groupsCount;
+        }
+    }
+
+    void setGroupsCount(long groupsCount) {
+        this.groupsCount = groupsCount;
+    }
 }

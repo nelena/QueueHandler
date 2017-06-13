@@ -15,9 +15,15 @@ public class ProducerImpl implements Producer<Item> {
     private Long groupsCount;
     private Long itemsCount;
 
+    public ProducerImpl(long groupsCount, long itemsCount){
+        this.groupsCount = groupsCount;
+        this.itemsCount = itemsCount;
+    }
+
+
     public ProducerImpl(){
         groupsCount = (long) Utils.generateRandom(1, 3);
-        itemsCount = (long) Utils.generateRandom(groupsCount.intValue() + 1, 5);
+        itemsCount = (long) Utils.generateRandom(groupsCount.intValue() + 1, 4);
     }
 
 
@@ -29,13 +35,13 @@ public class ProducerImpl implements Producer<Item> {
             System.out.println(LocalTime.now() + ": CREATE ITEM: " + item);
             putItem(item);
             try {
-                Thread.sleep(1000L);
+                Thread.sleep(1L);
             }
             catch (InterruptedException e){
                 e.printStackTrace();
             }
         }
-        getQueue().setIsAddingFinished(true);
+        getQueue().setIsAddingFinished();
         System.out.println(LocalTime.now() + ": ADDING FINISHED.");
     }
 
